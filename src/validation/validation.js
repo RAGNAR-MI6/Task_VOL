@@ -1,69 +1,126 @@
-// src/validation.js
+// src/validation/validation.js
 
-// This function will check all the form data against the rules
-// from React_Task.pdf [cite: 3, 5, 10, 11, 12, 14]
+// Define validation rules configuration
+const validationRules = {
+  applName: {
+    required: true,
+    minLength: 3,
+    message: "Application Name is required (min 3 characters)", // [cite: 13]
+  },
+  city: {
+    required: true,
+    message: "City is required", // [cite: 13]
+  },
+  firm: {
+    required: true,
+    message: "Firm is required", // [cite: 13]
+  },
+  business_type: {
+    required: true,
+    message: "Business Type is required", // [cite: 13]
+  },
+  contactPerson: {
+    required: true,
+    pattern: /^[a-zA-Z\s]+$/,
+    message: "Contact Person must contain only letters and spaces", // [cite: 13]
+    requiredMessage: "Contact Person is required",
+  },
+  mobile: {
+    required: true,
+    pattern: /^\d{10}$/,
+    message: "Mobile number must be exactly 10 digits", // [cite: 13, 41]
+    requiredMessage: "Mobile is required",
+  },
+  instAddr1: {
+    required: true,
+    message: "Install Address 1 is required", // [cite: 13]
+  },
+  instLocality: {
+    required: true,
+    message: "Install Locality is required", // [cite: 13]
+  },
+  instPincode: {
+    required: true,
+    pattern: /^\d{6}$/,
+    message: "Pincode must be 6 digits", // [cite: 13, 42]
+    requiredMessage: "Pincode is required",
+  },
+  mcc: {
+    required: true,
+    message: "MCC is required", // [cite: 13]
+  },
+  pan: {
+    required: true,
+    pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    message: "Invalid PAN format (e.g., RTGHP2345G)", // [cite: 13, 42]
+    requiredMessage: "PAN is required",
+  },
+  panDob: {
+    required: true,
+    // Add pattern for date if needed, e.g., /^\d{4}-\d{2}-\d{2}$/
+    message: "PAN DOB is required", // [cite: 13]
+  },
+  meAcType: {
+    required: true,
+    message: "Account Type is required", // [cite: 16, 21]
+  },
+  meName: {
+    required: true,
+    pattern: /^[a-zA-Z\s]+$/, // Added alphabetic check
+    message: "Account Holder Name must be alphabetic only", //
+    requiredMessage: "Account Holder Name is required",
+  },
+  melfsc: {
+    required: true,
+    pattern: /^[A-Z]{4}0[A-Z0-9]{6}$/,
+    message: "Invalid IFSC format (e.g., SBIB001458)", // [cite: 18, 23]
+    requiredMessage: "IFSC code is required",
+  },
+  meAcNo: {
+    required: true,
+    pattern: /^\d{10,18}$/,
+    message: "Account Number must be 10-18 digits", // [cite: 19, 25]
+    requiredMessage: "Account Number is required",
+  },
+  qrBoombox: {
+    required: true,
+    message: "qrBoombox selection is required", // [cite: 20, 26]
+  },
+  // Add optional fields if they have validation rules (e.g., dba, instAddr2, instAddr3)
+  // dba: { pattern: /some_pattern/, message: "Invalid DBA format" },
+};
+
+// Generic validation function
 export const validateForm = (data) => {
   const errors = {};
 
-  // --- Validation Rules from React_Task.pdf ---
+  for (const fieldName in validationRules) {
+    const rule = validationRules[fieldName];
+    const value = data[fieldName];
 
-  if (!data.applName || data.applName.length < 3) {
-    errors.applName = "Application Name is required (min 3 characters)"; // [cite: 3]
+    // Check required
+    if (rule.required && (!value || String(value).trim() === "")) {
+      errors[fieldName] =
+        rule.requiredMessage || rule.message || `${fieldName} is required`;
+      continue; // Skip further checks if required field is empty
+    }
+
+    // Check minLength (only if there's a value)
+    if (value && rule.minLength && String(value).length < rule.minLength) {
+      errors[fieldName] =
+        rule.message ||
+        `${fieldName} must be at least ${rule.minLength} characters`;
+      continue;
+    }
+
+    // Check pattern (only if there's a value)
+    if (value && rule.pattern && !rule.pattern.test(String(value))) {
+      errors[fieldName] = rule.message || `Invalid format for ${fieldName}`;
+      continue;
+    }
+
+    // Add other rule checks here (e.g., maxLength, type, custom function)
   }
-  if (!data.city) errors.city = "City is required"; // [cite: 3]
-  if (!data.firm) errors.firm = "Firm is required"; // [cite: 3]
-  if (!data.business_type) errors.business_type = "Business Type is required"; // [cite: 3]
-
-  if (!data.contactPerson) {
-    errors.contactPerson = "Contact Person is required"; // [cite: 3]
-  } else if (!/^[a-zA-Z\s]+$/.test(data.contactPerson)) {
-    errors.contactPerson =
-      "Contact Person must contain only letters and spaces"; // [cite: 3]
-  }
-
-  if (!data.mobile) {
-    errors.mobile = "Mobile is required"; // [cite: 3]
-  } else if (!/^\d{10}$/.test(data.mobile)) {
-    errors.mobile = "Mobile number must be exactly 10 digits"; // [cite: 3, 30]
-  }
-
-  if (!data.instAddr1) errors.instAddr1 = "Install Address 1 is required"; // [cite: 3]
-  if (!data.instLocality) errors.instLocality = "Install Locality is required"; // [cite: 3]
-
-  if (!data.instPincode) {
-    errors.instPincode = "Pincode is required"; // [cite: 3]
-  } else if (!/^\d{6}$/.test(data.instPincode)) {
-    errors.instPincode = "Pincode must be 6 digits"; // [cite: 3, 31]
-  }
-
-  if (!data.mcc) errors.mcc = "MCC is required"; // [cite: 3]
-
-  if (!data.pan) {
-    errors.pan = "PAN is required"; // [cite: 3]
-  } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(data.pan)) {
-    // Example regex, adjust if needed for the exact format [cite: 31]
-    errors.pan = "Invalid PAN format (e.g., RTGHP2345G)"; // [cite: 3]
-  }
-
-  if (!data.panDob) errors.panDob = "PAN DOB is required"; // [cite: 3]
-  if (!data.meAcType) errors.meAcType = "Account Type is required"; // [cite: 5, 10]
-  if (!data.meName) errors.meName = "Account Holder Name is required"; // [cite: 6, 11]
-
-  if (!data.melfsc) {
-    errors.melfsc = "IFSC code is required"; // [cite: 7, 12]
-  } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(data.melfsc)) {
-    errors.melfsc = "Invalid IFSC format (e.g., SBIB001458)"; // [cite: 12, 13]
-  }
-
-  if (!data.meAcNo) {
-    errors.meAcNo = "Account Number is required"; // [cite: 8, 14]
-  } else if (!/^\d{10,18}$/.test(data.meAcNo)) {
-    errors.meAcNo = "Account Number must be 10-18 digits"; // [cite: 14]
-  }
-
-  if (!data.qrBoombox) errors.qrBoombox = "qrBoombox selection is required"; // [cite: 9, 15]
-
-  // ... add all other required field checks ...
 
   return errors;
 };

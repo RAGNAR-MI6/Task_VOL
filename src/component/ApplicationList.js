@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 // Get API URL from UI Task.pdf [cite: 44]
-const GET_API_URL =
-  "http://fintechgrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me/api/admin/1/getApplicationByAgentId?page=1&size=10";
+const GET_API_URL = "/api/admin/1/getApplicationByAgentId?page=1&size=10";
 
 const ApplicationList = ({ refreshTrigger }) => {
   const [applications, setApplications] = useState([]);
