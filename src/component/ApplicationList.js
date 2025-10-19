@@ -1,23 +1,14 @@
 // src/component/ApplicationList.js
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react"; // Removed useCallback
 import axios from "axios";
-import "./Pagination.css"; // Import pagination CSS (if not already done)
-import "./Search.css"; // Import search CSS
+import "./Pagination.css"; // Kept pagination CSS
+// Removed Search.css and Highlight.css imports
 
 // Base API URL
 const API_BASE_URL = "/api/admin/1/getApplicationByAgentId";
-const PAGE_SIZE = 10; // Number of items per page
+const PAGE_SIZE = 15; // Number of items per page
 
-// Simple debounce function
-const debounce = (func, delay) => {
-  let timeoutId;
-  return function (...args) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
-  };
-};
+// HighlightMatch component removed
 
 const ApplicationList = ({ refreshTrigger }) => {
   const [applications, setApplications] = useState([]);
@@ -25,30 +16,20 @@ const ApplicationList = ({ refreshTrigger }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  // Removed searchTerm state
 
-  // Debounced fetch function
-  const debouncedFetch = useCallback(
-    debounce((page, term) => {
-      fetchApplications(page, term);
-    }, 500), // 500ms delay
-    [] // Empty dependency array means this function is created once
-  );
+  // Debounced fetch removed
 
-  const fetchApplications = async (page = 1, term = "") => {
+  // Simplified fetchApplications - no search term
+  const fetchApplications = async (page = 1) => {
     setLoading(true);
-    // Construct API URL with pagination and search parameters
-    // **IMPORTANT**: You need to ensure your backend API supports a 'search' or similar query parameter.
-    // Adjust the parameter name (e.g., 'query', 'filter', 'searchTerm') as needed for your backend.
-    const apiUrl = `${API_BASE_URL}?page=${page}&size=${PAGE_SIZE}&search=${encodeURIComponent(
-      term
-    )}`;
+    // Construct API URL with only pagination parameters
+    const apiUrl = `${API_BASE_URL}?page=${page}&size=${PAGE_SIZE}`; // Removed search parameter
     try {
       const response = await axios.get(apiUrl);
       setApplications(response.data.content || []);
       setTotalPages(response.data.totalPages || 0);
       setTotalElements(response.data.totalElements || 0);
-      // Don't reset current page here, only when search term *changes*
     } catch (error) {
       console.error("Error fetching applications:", error);
       setApplications([]);
@@ -60,21 +41,16 @@ const ApplicationList = ({ refreshTrigger }) => {
 
   // Effect for initial load and refreshTrigger changes
   useEffect(() => {
-    fetchApplications(currentPage, searchTerm);
+    fetchApplications(currentPage); // Call simplified fetch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]); // Keep this separate for external refresh
 
-  // Effect for handling search term changes (debounced)
-  useEffect(() => {
-    // When search term changes, always go back to page 1
-    setCurrentPage(1);
-    debouncedFetch(1, searchTerm);
-  }, [searchTerm, debouncedFetch]); // Add debouncedFetch to dependencies
+  // Removed useEffect for handling search term changes
 
   // Effect for handling page changes
   useEffect(() => {
-    // Fetch data only if the page actually changes (avoid double fetch on search)
-    // This effect should run *after* the search term effect might have reset the page
-    fetchApplications(currentPage, searchTerm);
+    // Fetch data only if the page actually changes
+    fetchApplications(currentPage); // Call simplified fetch
   }, [currentPage]); // Only depend on currentPage
 
   const handlePageChange = (newPage) => {
@@ -83,9 +59,7 @@ const ApplicationList = ({ refreshTrigger }) => {
     }
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  // handleSearchChange removed
 
   const startItem = totalElements === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
   const endItem = Math.min(currentPage * PAGE_SIZE, totalElements);
@@ -94,15 +68,7 @@ const ApplicationList = ({ refreshTrigger }) => {
     <div className="application-list">
       <div className="list-header">
         <h2>Saved Applications</h2>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search by Name, PAN, Mobile..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
-        </div>
+        {/* Search container and input removed */}
       </div>
 
       {loading ? (
@@ -110,7 +76,6 @@ const ApplicationList = ({ refreshTrigger }) => {
       ) : (
         <>
           <table>
-            {/* ... table thead ... */}
             <thead>
               <tr>
                 <th>Name</th>
@@ -125,8 +90,7 @@ const ApplicationList = ({ refreshTrigger }) => {
               {applications.length > 0 ? (
                 applications.map((app) => (
                   <tr key={app.applicationId || app.pan}>
-                    {" "}
-                    {/* Ensure unique key */}
+                    {/* Removed HighlightMatch component */}
                     <td>{app.applName}</td>
                     <td>{app.firm}</td>
                     <td>{app.mobile}</td>
@@ -137,9 +101,8 @@ const ApplicationList = ({ refreshTrigger }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5">
-                    No applications found {searchTerm && `for "${searchTerm}"`}.
-                  </td>
+                  {/* Updated message for no results */}
+                  <td colSpan="5">No applications found.</td>
                 </tr>
               )}
             </tbody>

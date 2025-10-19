@@ -4,93 +4,98 @@
 const validationRules = {
   applName: {
     required: true,
-    minLength: 3,
-    message: "Application Name is required (min 3 characters)", // [cite: 13]
+    minLength: 3, // Keep minLength if still desired
+    pattern: /^[a-zA-Z\s]+$/, // Added alphabetic and space check
+    message:
+      "Application Name must contain only letters and spaces (min 3 characters)", // Updated message
+    requiredMessage: "Application Name is required", // Specific required message
   },
   city: {
     required: true,
-    message: "City is required", // [cite: 13]
+    pattern: /^[a-zA-Z\s]+$/, // Added alphabetic and space check
+    message: "City must contain only letters and spaces", // Updated message
+    requiredMessage: "City is required", // Specific required message
   },
   firm: {
     required: true,
-    message: "Firm is required", // [cite: 13]
+    message: "Firm is required", //
   },
   business_type: {
     required: true,
-    message: "Business Type is required", // [cite: 13]
+    message: "Business Type is required", //
   },
   contactPerson: {
     required: true,
     pattern: /^[a-zA-Z\s]+$/,
-    message: "Contact Person must contain only letters and spaces", // [cite: 13]
+    message: "Contact Person must contain only letters and spaces", //
     requiredMessage: "Contact Person is required",
   },
   mobile: {
     required: true,
     pattern: /^\d{10}$/,
-    message: "Mobile number must be exactly 10 digits", // [cite: 13, 41]
+    message: "Mobile number must be exactly 10 digits", //
     requiredMessage: "Mobile is required",
   },
   instAddr1: {
     required: true,
-    message: "Address 1 is required", // [cite: 13]
+    message: "Address 1 is required", //
   },
   instLocality: {
     required: true,
-    message: "Locality is required", // [cite: 13]
+    message: "Locality is required", //
   },
   instPincode: {
     required: true,
-    pattern: /^\d{6}$/,
-    message: "Pincode must be 6 digits", // [cite: 13, 42]
+    pattern: /^\d{6}$/, // Checks for exactly 6 digits
+    message: "Pincode must be 6 digits", //
     requiredMessage: "Pincode is required",
   },
   mcc: {
     required: true,
-    message: "MCC is required", // [cite: 13]
+    message: "MCC is required", //
   },
   pan: {
     required: true,
     pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
-    message: "Invalid PAN format (e.g., RTGHP2345G)", // [cite: 13, 42]
+    message: "Invalid PAN format (e.g., RTGHP2345G)", //
     requiredMessage: "PAN is required",
   },
   panDob: {
     required: true,
     // Add pattern for date if needed, e.g., /^\d{4}-\d{2}-\d{2}$/
-    message: "PAN DOB is required", // [cite: 13]
+    message: "PAN DOB is required", //
   },
   meAcType: {
     required: true,
-    message: "Account Type is required", // [cite: 16, 21]
+    message: "Account Type is required", //
   },
   meName: {
     required: true,
-    pattern: /^[a-zA-Z\s]+$/, // Added alphabetic check
+    pattern: /^[a-zA-Z\s]+$/, // Already correct
     message: "Account Holder Name must be alphabetic only", //
     requiredMessage: "Account Holder Name is required",
   },
   melfsc: {
     required: true,
     pattern: /^[A-Z]{4}0[A-Z0-9]{6}$/,
-    message: "Invalid IFSC format (e.g., SBIB001458)", // [cite: 18, 23]
+    message: "Invalid IFSC format (e.g., SBIB001458)", //
     requiredMessage: "IFSC code is required",
   },
   meAcNo: {
     required: true,
     pattern: /^\d{10,18}$/,
-    message: "Account Number must be 10-18 digits", // [cite: 19, 25]
+    message: "Account Number must be 10-18 digits", //
     requiredMessage: "Account Number is required",
   },
   qrBoombox: {
     required: true,
-    message: "qrBoombox selection is required", // [cite: 20, 26]
+    message: "qrBoombox selection is required", //
   },
   // Add optional fields if they have validation rules (e.g., dba, instAddr2, instAddr3)
   // dba: { pattern: /some_pattern/, message: "Invalid DBA format" },
 };
 
-// Generic validation function
+// Generic validation function remains the same
 export const validateForm = (data) => {
   const errors = {};
 
