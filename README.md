@@ -1,5 +1,3 @@
----
-
 # 🧾 Merchant Onboarding Dashboard
 
 The **Merchant Onboarding Dashboard** is a React-based web application designed to simplify the process of onboarding new merchants.
