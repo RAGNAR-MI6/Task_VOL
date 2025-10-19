@@ -1,116 +1,185 @@
-Okay, here is a more detailed README file tailored to your Merchant Onboarding Dashboard project.
+---
 
-```markdown
-# Merchant Onboarding Dashboard
+# 🧾 Merchant Onboarding Dashboard
 
-This project is a React application designed as a dashboard for onboarding merchants. It allows an agent (currently hardcoded as agent ID 1027) to fill out a detailed application form for a new merchant and view a list of previously saved applications.
+The **Merchant Onboarding Dashboard** is a React-based web application designed to simplify the process of onboarding new merchants.
+It allows an **agent (ID: 1027 - currently hardcoded)** to fill out a comprehensive application form and view previously submitted merchant applications in a structured dashboard.
 
-This project was bootstrappled with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Features
+---
 
-- **Application Form (`src/component/ApplicationForm.js`)**: A comprehensive form for collecting merchant details, including:
-  - Personal & Firm Information (Name, Firm, Business Type, MCC)
-  - Contact Information (Contact Person, Mobile)
-  - Address Details (Lines 1-3, Locality, City, Pincode)
-  - PAN & Bank Details (PAN, PAN DOB, Account Holder Name, Account Type, Account No, IFSC)
-  - Other Options (qrBoombox selection)
-  - **Input Validation**: Real-time validation and input filtering enforce specific formats (e.g., alphabetic names, numeric Pincode/Mobile/Account No., PAN/IFSC format). Validation logic resides in `src/validation/validation.js`.
-  - **Submission**: Submits the form data as a draft to the backend API.
-- **Application List (`src/component/ApplicationList.js`)**: Displays a paginated table of applications previously saved by the agent.
-  - Fetches data from the backend API.
-  - Includes pagination controls (Previous/Next, page count, item range).
-  - Refreshes automatically when a new form is successfully submitted.
-- **Styling**: Basic styling is provided using CSS modules (`src/App.css`, `src/component/Form.css`, `src/component/Pagination.css`). CSS variables for theming are defined in `src/index.css`.
-- **API Interaction**: Uses `axios` for making HTTP requests to the backend API.
-- **Proxy Setup**: Configured in `package.json` to proxy API requests from `/api/...` to `http://fintechqrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me` during development, avoiding CORS issues.
+## 🚀 Features
 
-## Project Structure
+### 📝 Application Form (`src/component/ApplicationForm.js`)
+
+A detailed form for capturing merchant information, including:
+
+* **Personal & Firm Information**
+
+  * Name, Firm, Business Type, MCC
+* **Contact Information**
+
+  * Contact Person, Mobile
+* **Address Details**
+
+  * Address Lines 1–3, Locality, City, Pincode
+* **PAN & Bank Details**
+
+  * PAN, PAN DOB, Account Holder Name, Account Type, Account No, IFSC
+* **Other Options**
+
+  * `qrBoombox` selection
+
+**Validation Highlights**:
+
+* Real-time input validation ensures proper formatting:
+
+  * Names → Alphabetic only
+  * Pincode / Mobile / Account No. → Numeric only
+  * PAN / IFSC → Uppercase alphanumeric pattern checks
+* Validation logic is centralized in `src/validation/validation.js`.
+
+**Form Submission**:
+
+* Submits data as a **draft** to the backend API.
+* On successful submission, the Application List view is automatically updated.
+
+---
+
+### 📄 Application List (`src/component/ApplicationList.js`)
+
+Displays a **paginated table** of all applications saved by the agent.
+
+* Fetches data from the backend API.
+* Shows total pages, current range, and navigation with **Previous** / **Next** buttons.
+* Updates automatically when a new application is submitted.
+
+---
+
+### 🎨 Styling
+
+* Basic styling is done using **CSS modules**:
+
+  * `src/App.css`
+  * `src/component/Form.css`
+  * `src/component/Pagination.css`
+* Theme variables are defined globally in `src/index.css`.
+
+---
+
+### 🌐 API Interaction
+
+* Uses [`axios`](https://github.com/axios/axios) for making HTTP requests.
+* Backend proxy is configured in `package.json`:
+
+```json
+"proxy": "http://fintechqrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me"
 ```
 
-.
-├── public/ \# Static assets and index.html
+This setup ensures API requests to `/api/...` are proxied correctly in development, avoiding CORS issues.
+
+---
+
+## 📁 Project Structure
+
+```
+merchant-onboarding-dashboard/
+├── public/
 ├── src/
-│ ├── component/ \# React components (ApplicationForm, ApplicationList)
-│ ├── validation/ \# Form validation logic
-│ ├── App.css \# Main application styles
-│ ├── App.js \# Root application component
-│ ├── App.test.js \# Basic App component test
-│ ├── index.css \# Global styles and CSS variables
-│ ├── index.js \# Application entry point
-│ ├── logo.svg \# React logo (currently empty)
-│ ├── reportWebVitals.js \# Performance reporting
-│ └── setupTests.js \# Jest setup
-├── .gitignore \# Git ignore rules
-├── package-lock.json \# Exact dependency versions
-├── package.json \# Project metadata and dependencies
-└── README.md \# This file
+│   ├── component/
+│   │   ├── ApplicationForm.js
+│   │   ├── ApplicationList.js
+│   │   ├── Pagination.css
+│   │   └── Form.css
+│   ├── validation/
+│   │   └── validation.js
+│   ├── App.css
+│   ├── App.js
+│   ├── index.css
+│   └── index.js
+├── package.json
+└── README.md
+```
 
-````
+---
 
-## Setup and Installation
+## 🛠️ Getting Started
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd onboarding-form
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-    or
-    ```bash
-    yarn install
-    ```
+### 1️⃣ Clone the Repository
 
-## Available Scripts
+```bash
+git clone https://github.com/your-username/merchant-onboarding-dashboard.git
+cd merchant-onboarding-dashboard
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Start the Development Server
+
+```bash
+npm start
+```
+
+> The app will open at **[http://localhost:3000](http://localhost:3000)**
+
+---
+
+## 🧪 Available Scripts
 
 In the project directory, you can run:
 
-### `npm start` or `yarn start`
+| Command         | Description                                  |
+| --------------- | -------------------------------------------- |
+| `npm start`     | Runs the app in development mode             |
+| `npm test`      | Launches the test runner                     |
+| `npm run build` | Builds the app for production                |
+| `npm run eject` | Exposes CRA configuration (use with caution) |
 
-Runs the app in development mode.
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.
-You may also see any lint errors in the console. API requests starting with `/api/` will be proxied to the backend specified in `package.json`.
+## 📡 Backend API
 
-### `npm test` or `yarn test`
+The dashboard interacts with the backend at:
 
-Launches the test runner in interactive watch mode.
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+http://fintechqrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me
+```
 
-### `npm run build` or `yarn build`
+> Make sure the backend is up and accessible for form submission and list retrieval.
 
-Builds the app for production to the `build` folder.
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include hashes.
-Your app is ready to be deployed!
+## 👨‍💻 Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* **Frontend**: React, CSS Modules
+* **HTTP Client**: Axios
+* **Build Tool**: Create React App
 
-### `npm run eject` or `yarn eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## ✨ Future Improvements
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* ✅ Agent login with authentication
+* ✅ Better UI/UX with component libraries (e.g., Material UI)
+* ✅ Advanced search and filtering on Application List
+* ✅ Error handling & toast notifications
 
-Instead, it will copy all configuration files and transitive dependencies (webpack, Babel, ESLint, etc.) right into your project so you have full control over them. All commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point, you're on your own.
+---
 
-## Backend API
+## 📜 License
 
-This frontend application expects a backend API running at the proxied URL (`http://fintechqrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me` during development). The following endpoints are currently used:
+This project is licensed under the [MIT License](LICENSE).
 
-* **`POST /api/admin/1/saveApplicationDraft`**: Used by `ApplicationForm.js` to submit new application data. Expects the form data in the request body.
-* **`GET /api/admin/1/getApplicationByAgentId`**: Used by `ApplicationList.js` to fetch saved applications. Supports `page` and `size` query parameters for pagination.
+---
 
-Ensure the backend server is running and accessible for the application to function correctly.
+### 📌 Author
 
-## Learn More
+**Rushikesh Patil**
 
-This project uses Create React App. You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-````
