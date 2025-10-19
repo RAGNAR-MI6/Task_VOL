@@ -13,35 +13,40 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 A detailed form for capturing merchant information, including:
 
-* **Personal & Firm Information**
+- **Personal & Firm Information**
 
-  * Name, Firm, Business Type, MCC
-* **Contact Information**
+  - Name, Firm, Business Type, MCC
 
-  * Contact Person, Mobile
-* **Address Details**
+- **Contact Information**
 
-  * Address Lines 1–3, Locality, City, Pincode
-* **PAN & Bank Details**
+  - Contact Person, Mobile
 
-  * PAN, PAN DOB, Account Holder Name, Account Type, Account No, IFSC
-* **Other Options**
+- **Address Details**
 
-  * `qrBoombox` selection
+  - Address Lines 1–3, Locality, City, Pincode
+
+- **PAN & Bank Details**
+
+  - PAN, PAN DOB, Account Holder Name, Account Type, Account No, IFSC
+
+- **Other Options**
+
+  - `qrBoombox` selection
 
 **Validation Highlights**:
 
-* Real-time input validation ensures proper formatting:
+- Real-time input validation ensures proper formatting:
 
-  * Names → Alphabetic only
-  * Pincode / Mobile / Account No. → Numeric only
-  * PAN / IFSC → Uppercase alphanumeric pattern checks
-* Validation logic is centralized in `src/validation/validation.js`.
+  - Names → Alphabetic only
+  - Pincode / Mobile / Account No. → Numeric only
+  - PAN / IFSC → Uppercase alphanumeric pattern checks
+
+- Validation logic is centralized in `src/validation/validation.js`.
 
 **Form Submission**:
 
-* Submits data as a **draft** to the backend API.
-* On successful submission, the Application List view is automatically updated.
+- Submits data as a **draft** to the backend API.
+- On successful submission, the Application List view is automatically updated.
 
 ---
 
@@ -49,27 +54,28 @@ A detailed form for capturing merchant information, including:
 
 Displays a **paginated table** of all applications saved by the agent.
 
-* Fetches data from the backend API.
-* Shows total pages, current range, and navigation with **Previous** / **Next** buttons.
-* Updates automatically when a new application is submitted.
+- Fetches data from the backend API.
+- Shows total pages, current range, and navigation with **Previous** / **Next** buttons.
+- Updates automatically when a new application is submitted.
 
 ---
 
 ### 🎨 Styling
 
-* Basic styling is done using **CSS modules**:
+- Basic styling is done using **CSS modules**:
 
-  * `src/App.css`
-  * `src/component/Form.css`
-  * `src/component/Pagination.css`
-* Theme variables are defined globally in `src/index.css`.
+  - `src/App.css`
+  - `src/component/Form.css`
+  - `src/component/Pagination.css`
+
+- Theme variables are defined globally in `src/index.css`.
 
 ---
 
 ### 🌐 API Interaction
 
-* Uses [`axios`](https://github.com/axios/axios) for making HTTP requests.
-* Backend proxy is configured in `package.json`:
+- Uses [`axios`](https://github.com/axios/axios) for making HTTP requests.
+- Backend proxy is configured in `package.json`:
 
 ```json
 "proxy": "http://fintechqrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me"
@@ -154,24 +160,18 @@ http://fintechqrqronboardingbackend-fcwvv1-aa5875-91-108-104-214.traefik.me
 
 ## 👨‍💻 Tech Stack
 
-* **Frontend**: React, CSS Modules
-* **HTTP Client**: Axios
-* **Build Tool**: Create React App
+- **Frontend**: React, CSS Modules
+- **HTTP Client**: Axios
+- **Build Tool**: Create React App
 
 ---
 
 ## ✨ Future Improvements
 
-* ✅ Agent login with authentication
-* ✅ Better UI/UX with component libraries (e.g., Material UI)
-* ✅ Advanced search and filtering on Application List
-* ✅ Error handling & toast notifications
-
----
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
+- ✅ Agent login with authentication
+- ✅ Better UI/UX with component libraries (e.g., Material UI)
+- ✅ Advanced search and filtering on Application List
+- ✅ Error handling & toast notifications
 
 ---
 
@@ -180,4 +180,3 @@ This project is licensed under the [MIT License](LICENSE).
 **Rushikesh Patil**
 
 ---
-
