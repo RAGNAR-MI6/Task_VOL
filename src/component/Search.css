@@ -1,0 +1,32 @@
+/* src/component/Search.css */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 15px; /* Add gap for spacing when wrapping */
+}
+
+.list-header h2 {
+  margin: 0; /* Remove default margins */
+}
+
+.search-container {
+  /* No specific styles needed unless you want to constrain width */
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color-base);
+  border-radius: var(--border-radius-base);
+  font-size: 0.95em;
+  min-width: 250px; /* Give it a decent minimum width */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  outline: none;
+}

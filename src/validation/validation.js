@@ -33,11 +33,11 @@ const validationRules = {
   },
   instAddr1: {
     required: true,
-    message: "Install Address 1 is required", // [cite: 13]
+    message: "Address 1 is required", // [cite: 13]
   },
   instLocality: {
     required: true,
-    message: "Install Locality is required", // [cite: 13]
+    message: "Locality is required", // [cite: 13]
   },
   instPincode: {
     required: true,

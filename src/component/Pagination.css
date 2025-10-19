@@ -1,0 +1,44 @@
+/* src/component/Pagination.css */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between; /* Align items nicely */
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color-split);
+  font-size: 0.9em;
+  color: var(--text-color-secondary);
+}
+
+.pagination-controls button {
+  background-color: var(--background-color-light);
+  color: var(--primary-color);
+  border: 1px solid var(--border-color-base);
+  padding: 6px 12px;
+  border-radius: var(--border-radius-base);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  margin: 0 5px; /* Add space around buttons */
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.pagination-controls button:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: not-allowed;
+  background-color: #f9f9f9;
+}
+
+.pagination-info {
+  margin-right: auto; /* Push page info to the left */
+}
+
+.pagination-page-info {
+  margin: 0 10px; /* Space around page indicator */
+  font-weight: 500;
+}

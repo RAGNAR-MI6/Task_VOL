@@ -1,3 +1,4 @@
+/* src/index.css */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +6,28 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5; /* Lighter grey background for the whole page */
+  color: #333; /* Default text color */
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Define some CSS variables for colors */
+:root {
+  --primary-color: #1890ff; /* A modern blue */
+  --primary-hover-color: #40a9ff;
+  --text-color-primary: #333;
+  --text-color-secondary: #666;
+  --background-color-light: #ffffff;
+  --background-color-base: #f0f2f5;
+  --border-color-base: #d9d9d9;
+  --border-color-split: #f0f0f0;
+  --error-color: #ff4d4f;
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --border-radius-base: 6px;
+  --box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.09);
 }

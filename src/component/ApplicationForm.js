@@ -1,96 +1,13 @@
 // src/component/ApplicationForm.js
 import React, { useState } from "react";
 import axios from "axios";
-import "./Form.css"; // Make sure this CSS file exists in the same directory or adjust the path
-
-// --- START: Validation logic (can be kept here or moved back to validation.js) ---
-const validationRules = {
-  applName: {
-    required: true,
-    minLength: 3,
-    message: "Application Name must be at least 3 characters",
-  },
-  city: { required: true, message: "City is required" },
-  firm: { required: true, message: "Firm is required" },
-  business_type: { required: true, message: "Business Type is required" },
-  contactPerson: {
-    required: true,
-    pattern: /^[a-zA-Z\s]+$/,
-    message: "Contact Person must contain only letters and spaces",
-    requiredMessage: "Contact Person is required",
-  },
-  mobile: {
-    required: true,
-    pattern: /^\d{10}$/,
-    message: "Mobile number must be exactly 10 digits",
-    requiredMessage: "Mobile is required",
-  },
-  instAddr1: { required: true, message: "Install Address 1 is required" },
-  instLocality: { required: true, message: "Install Locality is required" },
-  instPincode: {
-    required: true,
-    pattern: /^\d{6}$/,
-    message: "Pincode must be 6 digits",
-    requiredMessage: "Pincode is required",
-  },
-  mcc: { required: true, message: "MCC is required" },
-  pan: {
-    required: true,
-    pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
-    message: "Invalid PAN format (e.g., ABCDE1234F)",
-    requiredMessage: "PAN is required",
-  },
-  panDob: { required: true, message: "PAN DOB is required" },
-  meAcType: { required: true, message: "Account Type is required" },
-  meName: {
-    required: true,
-    pattern: /^[a-zA-Z\s]+$/,
-    message: "Account Holder Name must be alphabetic only",
-    requiredMessage: "Account Holder Name is required",
-  },
-  melfsc: {
-    required: true,
-    pattern: /^[A-Z]{4}0[A-Z0-9]{6}$/,
-    message: "Invalid IFSC format (e.g., SBIN0001234)",
-    requiredMessage: "IFSC code is required",
-  },
-  meAcNo: {
-    required: true,
-    pattern: /^\d{9,18}$/,
-    message: "Account Number must be between 9 and 18 digits",
-    requiredMessage: "Account Number is required",
-  },
-  qrBoombox: { required: true, message: "qrBoombox selection is required" },
-};
-
-const validateForm = (data) => {
-  const errors = {};
-  for (const fieldName in validationRules) {
-    const rule = validationRules[fieldName];
-    const value = data?.[fieldName];
-    if (rule.required && (!value || String(value).trim() === "")) {
-      errors[fieldName] =
-        rule.requiredMessage || rule.message || `${fieldName} is required`;
-      continue;
-    }
-    if (value && rule.minLength && String(value).length < rule.minLength) {
-      errors[fieldName] = rule.message;
-      continue;
-    }
-    if (value && rule.pattern && !rule.pattern.test(String(value))) {
-      errors[fieldName] = rule.message;
-      continue;
-    }
-  }
-  return errors;
-};
-// --- END: Validation logic ---
+import { validateForm } from "../validation/validation"; // Import validation logic
+import "./Form.css";
 
 // Use relative URL for the proxy
 const SAVE_API_URL = "/api/admin/1/saveApplicationDraft";
 
-// This initial state is crucial. It's based on the sample request
-// and ensures all fields are controlled components.
+// Initial state remains the same
 const initialState = {
   applicationId: "",
   agentId: 1027,
@@ -126,16 +43,11 @@ const ApplicationForm = ({ onFormSuccess }) => {
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Keep track of which fields have been touched (focused out of)
   const [touched, setTouched] = useState({});
 
-  // Function to validate a single field
   const validateField = (name, value) => {
-    // Create a temporary data object including the current field's value for validation
     const tempData = { ...formData, [name]: value };
-    // Run the full validation logic
     const validationErrors = validateForm(tempData);
-    // Return the error specific to this field, or null if valid
     return validationErrors[name] || null;
   };
 
@@ -143,9 +55,17 @@ const ApplicationForm = ({ onFormSuccess }) => {
     const { name, value } = e.target;
     let processedValue = value;
 
+    // --- START: Numeric Input Restriction ---
+    // Allow only digits for mobile and account number fields
+    if (name === "mobile" || name === "meAcNo") {
+      // Remove any non-digit characters
+      processedValue = value.replace(/\D/g, "");
+    }
+    // --- END: Numeric Input Restriction ---
+
     // Convert PAN and IFSC to uppercase on input
     if (name === "pan" || name === "melfsc") {
-      processedValue = value.toUpperCase();
+      processedValue = processedValue.toUpperCase(); // Use processedValue here too
     }
 
     // Update form data state
@@ -158,13 +78,10 @@ const ApplicationForm = ({ onFormSuccess }) => {
     }
   };
 
-  // Handle blur event to mark field as touched and validate
+  // handleBlur and handleSubmit remain the same as the previous version...
   const handleBlur = (e) => {
     const { name } = e.target;
-    // Mark the field as touched
     setTouched((prevTouched) => ({ ...prevTouched, [name]: true }));
-    // Validate the field when the user leaves it
-    // Use the potentially processed value from formData state
     const processedValue = formData[name];
     const fieldError = validateField(name, processedValue);
     setErrors((prevErrors) => ({ ...prevErrors, [name]: fieldError }));
@@ -173,42 +90,32 @@ const ApplicationForm = ({ onFormSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Mark all fields defined in rules as touched to show errors on submit attempt
-    const allTouched = Object.keys(validationRules).reduce(
+    const validationErrors = validateForm(formData);
+    const touchFieldsWithErrors = Object.keys(validationErrors).reduce(
       (acc, key) => ({ ...acc, [key]: true }),
       {}
     );
-    setTouched(allTouched);
+    setTouched((prevTouched) => ({ ...prevTouched, ...touchFieldsWithErrors }));
 
-    // 1. Perform full client-side validation on submit
-    const validationErrors = validateForm(formData);
     setErrors(validationErrors);
 
-    // 2. Prevent submission if errors exist
     if (Object.keys(validationErrors).length > 0) {
       alert("Please fix the errors in the form.");
       return;
     }
 
-    // 3. Submit data to the API
     setIsSubmitting(true);
     try {
-      // Use the *real* API endpoint
       const response = await axios.post(SAVE_API_URL, formData);
-
-      // Log the response data
       console.log("API Success Response:", response.data);
-
-      // 4. Display success message
       alert("Form submitted successfully!");
-      setFormData(initialState); // Clear the form
+      setFormData(initialState);
       setErrors({});
-      setTouched({}); // Clear touched state
+      setTouched({});
       if (onFormSuccess) {
-        onFormSuccess(); // Tell App.js to refresh the list
+        onFormSuccess();
       }
     } catch (error) {
-      // 5. Display error message
       console.error(
         "API Error:",
         error.response || error.request || error.message
@@ -219,11 +126,8 @@ const ApplicationForm = ({ onFormSuccess }) => {
     }
   };
 
-  // Helper to render the error message, showing only if touched
   const renderError = (fieldName) => {
-    // Show error only if field has an error AND it has been touched
     return errors[fieldName] && touched[fieldName] ? (
-      // Add unique id for aria-describedby
       <span id={`${fieldName}-error`} className="error-message">
         {errors[fieldName]}
       </span>
@@ -231,6 +135,7 @@ const ApplicationForm = ({ onFormSuccess }) => {
   };
 
   return (
+    // --- JSX remains the same as the previous version ---
     <form onSubmit={handleSubmit} className="application-form">
       <h2>New Application Form</h2>
 
@@ -339,7 +244,7 @@ const ApplicationForm = ({ onFormSuccess }) => {
         <div className="form-group">
           <label htmlFor="mobile">Mobile *</label>
           <input
-            type="text" // Keep as text to allow length limiting, pattern handles numeric
+            type="text" // Keep as text, manipulation happens in handleChange
             id="mobile"
             name="mobile"
             value={formData.mobile}
@@ -384,7 +289,6 @@ const ApplicationForm = ({ onFormSuccess }) => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {/* Optional: Render error if specific format rule exists for instAddr2 */}
         {renderError("instAddr2")}
       </div>
       <div className="form-group">
@@ -397,7 +301,6 @@ const ApplicationForm = ({ onFormSuccess }) => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-        {/* Optional: Render error if specific format rule exists for instAddr3 */}
         {renderError("instAddr3")}
       </div>
       <div className="form-row">
@@ -536,7 +439,7 @@ const ApplicationForm = ({ onFormSuccess }) => {
         <div className="form-group">
           <label htmlFor="meAcNo">Account Number *</label>
           <input
-            type="text" // Keep as text, pattern handles numeric/length
+            type="text" // Keep as text, manipulation happens in handleChange
             id="meAcNo"
             name="meAcNo"
             value={formData.meAcNo}
