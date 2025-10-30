@@ -4,10 +4,13 @@ import axios from "axios";
 import "./Pagination.css";
 import "./Search.css";
 import "./Highlight.css";
+import EditModal from "./EditModal"; // ADDED: Import the modal
+import "./EditModal.css"; // ADDED: Import modal CSS
+import "../component/Form.css"; // ADDED: Import form CSS to borrow button styles
 
 // Base API URL
 const API_BASE_URL = "/api/admin/1/getApplicationByAgentId";
-const PAGE_SIZE = 15; // Number of items per page
+const PAGE_SIZE = 15;
 
 // Helper function to escape regex special characters
 const escapeRegExp = (string) => {
@@ -49,14 +52,14 @@ const ApplicationList = ({ refreshTrigger }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // MODIFIED: This function now uses a Map to prevent duplicates
+  // ADDED: State to manage which application is being edited
+  const [editingApp, setEditingApp] = useState(null);
+
   const fetchAllApplications = async () => {
     setLoading(true);
-    // Use a Map to store applications, with applicationId as the key.
-    // This automatically handles de-duplication.
     const applicationMap = new Map();
     let page = 1;
-    let totalPages = 1; // Assume at least one page to start
+    let totalPages = 1;
 
     try {
       do {
@@ -64,22 +67,15 @@ const ApplicationList = ({ refreshTrigger }) => {
         const response = await axios.get(apiUrl);
         const applications = response.data.content || [];
 
-        // Add each application to the map
         for (const app of applications) {
-          // Use applicationId as the key, as that is what React is
-          // complaining about (the UUID). This ensures uniqueness.
           if (app.applicationId) {
             applicationMap.set(app.applicationId, app);
           }
-          // You could add a fallback to PAN here if needed, e.g.:
-          // else if (app.pan) { applicationMap.set(app.pan, app); }
         }
-
         totalPages = response.data.totalPages || 0;
         page++;
       } while (page <= totalPages);
 
-      // Convert the Map's values back into an array
       setAllApplications(Array.from(applicationMap.values()));
     } catch (error) {
       console.error("Error fetching all applications:", error);
@@ -88,25 +84,20 @@ const ApplicationList = ({ refreshTrigger }) => {
     setLoading(false);
   };
 
-  // This effect fetches ALL data on load or when refresh is triggered
   useEffect(() => {
     fetchAllApplications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]);
 
-  // This hook resets the page to 1 whenever the search term changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Memoized calculation for filtered applications
   const filteredApplications = useMemo(() => {
     const lowerCaseSearch = searchTerm.toLowerCase().trim();
-
     if (!lowerCaseSearch) {
       return allApplications;
     }
-
     return allApplications.filter((app) => {
       return (
         app.applName?.toLowerCase().includes(lowerCaseSearch) ||
@@ -118,7 +109,6 @@ const ApplicationList = ({ refreshTrigger }) => {
     });
   }, [allApplications, searchTerm]);
 
-  // Memoized calculations for pagination
   const totalElements = filteredApplications.length;
   const totalPages = Math.ceil(totalElements / PAGE_SIZE);
 
@@ -136,6 +126,28 @@ const ApplicationList = ({ refreshTrigger }) => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  // ADDED: Function to handle opening the modal
+  const handleEditClick = (app) => {
+    setEditingApp(app);
+  };
+
+  // ADDED: Function to close the modal
+  const handleCloseModal = () => {
+    setEditingApp(null);
+  };
+
+  // ADDED: Function to save the edited data locally
+  const handleSave = (updatedApp) => {
+    // Update the "master list" of applications
+    setAllApplications((prevApps) =>
+      prevApps.map((app) =>
+        app.applicationId === updatedApp.applicationId ? updatedApp : app
+      )
+    );
+    // Close the modal
+    setEditingApp(null);
   };
 
   const startItem = totalElements === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
@@ -168,12 +180,12 @@ const ApplicationList = ({ refreshTrigger }) => {
                 <th>Mobile</th>
                 <th>PAN</th>
                 <th>Status</th>
+                <th>Actions</th> {/* ADDED: Actions column header */}
               </tr>
             </thead>
             <tbody>
               {paginatedApplications.length > 0 ? (
                 paginatedApplications.map((app) => (
-                  // This key prop will now be safe because allApplications is de-duplicated
                   <tr key={app.applicationId || app.pan}>
                     <td>
                       <HighlightMatch
@@ -199,11 +211,21 @@ const ApplicationList = ({ refreshTrigger }) => {
                         highlight={searchTerm}
                       />
                     </td>
+                    {/* ADDED: Edit button cell */}
+                    <td>
+                      <button
+                        className="submit-btn edit-btn" // Re-using button style
+                        onClick={() => handleEditClick(app)}
+                      >
+                        Edit
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5">
+                  {/* MODIFIED: ColSpan increased to 6 */}
+                  <td colSpan="6">
                     {searchTerm
                       ? "No applications found matching your search."
                       : "No applications found."}
@@ -238,6 +260,15 @@ const ApplicationList = ({ refreshTrigger }) => {
             </div>
           )}
         </>
+      )}
+
+      {/* ADDED: Render the modal conditionally */}
+      {editingApp && (
+        <EditModal
+          app={editingApp}
+          onClose={handleCloseModal}
+          onSave={handleSave}
+        />
       )}
     </div>
   );
