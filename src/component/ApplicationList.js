@@ -1,65 +1,142 @@
 // src/component/ApplicationList.js
-import React, { useState, useEffect } from "react"; // Removed useCallback
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import "./Pagination.css"; // Kept pagination CSS
-// Removed Search.css and Highlight.css imports
+import "./Pagination.css";
+import "./Search.css";
+import "./Highlight.css";
 
 // Base API URL
 const API_BASE_URL = "/api/admin/1/getApplicationByAgentId";
 const PAGE_SIZE = 15; // Number of items per page
 
-// HighlightMatch component removed
+// Helper function to escape regex special characters
+const escapeRegExp = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
+// HighlightMatch component
+const HighlightMatch = ({ text, highlight }) => {
+  const textString = String(text || "");
+  const trimmedHighlight = highlight ? highlight.trim() : "";
+
+  if (!trimmedHighlight) {
+    return textString;
+  }
+
+  const escapedHighlight = escapeRegExp(trimmedHighlight);
+  const regex = new RegExp(`(${escapedHighlight})`, "gi");
+  const parts = textString.split(regex);
+
+  return (
+    <span>
+      {parts.map((part, index) =>
+        regex.test(part) &&
+        part.toLowerCase() === trimmedHighlight.toLowerCase() ? (
+          <mark key={index} className="highlight">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </span>
+  );
+};
 
 const ApplicationList = ({ refreshTrigger }) => {
-  const [applications, setApplications] = useState([]);
+  const [allApplications, setAllApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  // Removed searchTerm state
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Debounced fetch removed
-
-  // Simplified fetchApplications - no search term
-  const fetchApplications = async (page = 1) => {
+  // MODIFIED: This function now uses a Map to prevent duplicates
+  const fetchAllApplications = async () => {
     setLoading(true);
-    // Construct API URL with only pagination parameters
-    const apiUrl = `${API_BASE_URL}?page=${page}&size=${PAGE_SIZE}`; // Removed search parameter
+    // Use a Map to store applications, with applicationId as the key.
+    // This automatically handles de-duplication.
+    const applicationMap = new Map();
+    let page = 1;
+    let totalPages = 1; // Assume at least one page to start
+
     try {
-      const response = await axios.get(apiUrl);
-      setApplications(response.data.content || []);
-      setTotalPages(response.data.totalPages || 0);
-      setTotalElements(response.data.totalElements || 0);
+      do {
+        const apiUrl = `${API_BASE_URL}?page=${page}&size=${PAGE_SIZE}`;
+        const response = await axios.get(apiUrl);
+        const applications = response.data.content || [];
+
+        // Add each application to the map
+        for (const app of applications) {
+          // Use applicationId as the key, as that is what React is
+          // complaining about (the UUID). This ensures uniqueness.
+          if (app.applicationId) {
+            applicationMap.set(app.applicationId, app);
+          }
+          // You could add a fallback to PAN here if needed, e.g.:
+          // else if (app.pan) { applicationMap.set(app.pan, app); }
+        }
+
+        totalPages = response.data.totalPages || 0;
+        page++;
+      } while (page <= totalPages);
+
+      // Convert the Map's values back into an array
+      setAllApplications(Array.from(applicationMap.values()));
     } catch (error) {
-      console.error("Error fetching applications:", error);
-      setApplications([]);
-      setTotalPages(0);
-      setTotalElements(0);
+      console.error("Error fetching all applications:", error);
+      setAllApplications([]);
     }
     setLoading(false);
   };
 
-  // Effect for initial load and refreshTrigger changes
+  // This effect fetches ALL data on load or when refresh is triggered
   useEffect(() => {
-    fetchApplications(currentPage); // Call simplified fetch
+    fetchAllApplications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshTrigger]); // Keep this separate for external refresh
+  }, [refreshTrigger]);
 
-  // Removed useEffect for handling search term changes
-
-  // Effect for handling page changes
+  // This hook resets the page to 1 whenever the search term changes
   useEffect(() => {
-    // Fetch data only if the page actually changes
-    fetchApplications(currentPage); // Call simplified fetch
-  }, [currentPage]); // Only depend on currentPage
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Memoized calculation for filtered applications
+  const filteredApplications = useMemo(() => {
+    const lowerCaseSearch = searchTerm.toLowerCase().trim();
+
+    if (!lowerCaseSearch) {
+      return allApplications;
+    }
+
+    return allApplications.filter((app) => {
+      return (
+        app.applName?.toLowerCase().includes(lowerCaseSearch) ||
+        app.firm?.toLowerCase().includes(lowerCaseSearch) ||
+        app.mobile?.toLowerCase().includes(lowerCaseSearch) ||
+        app.pan?.toLowerCase().includes(lowerCaseSearch) ||
+        app.status?.toLowerCase().includes(lowerCaseSearch)
+      );
+    });
+  }, [allApplications, searchTerm]);
+
+  // Memoized calculations for pagination
+  const totalElements = filteredApplications.length;
+  const totalPages = Math.ceil(totalElements / PAGE_SIZE);
+
+  const paginatedApplications = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return filteredApplications.slice(start, end);
+  }, [filteredApplications, currentPage]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-      setCurrentPage(newPage); // This will trigger the useEffect for currentPage
+      setCurrentPage(newPage);
     }
   };
 
-  // handleSearchChange removed
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const startItem = totalElements === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
   const endItem = Math.min(currentPage * PAGE_SIZE, totalElements);
@@ -68,7 +145,15 @@ const ApplicationList = ({ refreshTrigger }) => {
     <div className="application-list">
       <div className="list-header">
         <h2>Saved Applications</h2>
-        {/* Search container and input removed */}
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search by name, firm, PAN..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -83,40 +168,57 @@ const ApplicationList = ({ refreshTrigger }) => {
                 <th>Mobile</th>
                 <th>PAN</th>
                 <th>Status</th>
-                {/* Add more relevant columns if needed */}
               </tr>
             </thead>
             <tbody>
-              {applications.length > 0 ? (
-                applications.map((app) => (
+              {paginatedApplications.length > 0 ? (
+                paginatedApplications.map((app) => (
+                  // This key prop will now be safe because allApplications is de-duplicated
                   <tr key={app.applicationId || app.pan}>
-                    {/* Removed HighlightMatch component */}
-                    <td>{app.applName}</td>
-                    <td>{app.firm}</td>
-                    <td>{app.mobile}</td>
-                    <td>{app.pan}</td>
-                    <td>{app.status}</td>
-                    {/* Render more data */}
+                    <td>
+                      <HighlightMatch
+                        text={app.applName}
+                        highlight={searchTerm}
+                      />
+                    </td>
+                    <td>
+                      <HighlightMatch text={app.firm} highlight={searchTerm} />
+                    </td>
+                    <td>
+                      <HighlightMatch
+                        text={app.mobile}
+                        highlight={searchTerm}
+                      />
+                    </td>
+                    <td>
+                      <HighlightMatch text={app.pan} highlight={searchTerm} />
+                    </td>
+                    <td>
+                      <HighlightMatch
+                        text={app.status}
+                        highlight={searchTerm}
+                      />
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  {/* Updated message for no results */}
-                  <td colSpan="5">No applications found.</td>
+                  <td colSpan="5">
+                    {searchTerm
+                      ? "No applications found matching your search."
+                      : "No applications found."}
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
 
-          {/* Pagination Controls */}
           {totalPages > 0 && (
             <div className="pagination-controls">
               <span className="pagination-info">
                 Showing {startItem} - {endItem} of {totalElements}
               </span>
               <div>
-                {" "}
-                {/* Wrapper for buttons */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}

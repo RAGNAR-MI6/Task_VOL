@@ -1,0 +1,6 @@
+/* src/component/Highlight.css */
+.highlight {
+  background-color: #fffb8f; /* Yellow highlight */
+  font-weight: 600; /* Make it bold */
+  color: #333; /* Ensure text color is still readable */
+}

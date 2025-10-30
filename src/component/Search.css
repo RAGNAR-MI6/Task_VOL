@@ -12,9 +12,6 @@
   margin: 0; /* Remove default margins */
 }
 
-.search-container {
-  /* No specific styles needed unless you want to constrain width */
-}
 
 .search-input {
   padding: 8px 12px;
